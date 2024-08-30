@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "tsty",
+    "slug": "tsty",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/leaf.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/leaf.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/leaf.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/leaf.png"
+    }
+  }
+}
