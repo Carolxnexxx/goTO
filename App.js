@@ -63,7 +63,9 @@ export default function App() {
               {props => <LogIn {...props} notificationCallback={schedulePushNotification} />}
             </Tab.Screen>
             <Tab.Screen name="Clean" component={BigTextInput} />
-            <Tab.Screen name="Rewards" component={Rewards} />
+            <Tab.Screen name="Rewards">
+              {props => <Rewards {...props} notificationCallback={schedulePushNotification} />}
+            </Tab.Screen>
           </Tab.Navigator>
         </NavigationContainer>
       </LitterProvider>
@@ -84,7 +86,7 @@ async function schedulePushNotification() {
       body: 'Input some clean ups!',
       data: { data: 'goes here', test: { test1: 'more data' } },
     },
-    trigger: { seconds: 5 },
+    trigger: null,
   });
 }
 

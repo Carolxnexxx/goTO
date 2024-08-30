@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, Modal, TouchableOpacity, Pressable } from 'react-native';
 import { LitterContext } from './LitterContext.jsx';
 import Header from './Header.jsx';
@@ -26,36 +26,40 @@ export default function Rewards() {
     const [unblurredModalVisible, setUnblurredModalVisible] = useState(false);
 
     const [currentAnimalName, setCurrentAnimalName] = useState('');
-    const [currentAnimalImage, setCurrentAnimalImage] = useState(null);
+    const [currentAnimalRealImage, setCurrentAnimalRealImage] = useState(null);
     const [currentAnimalType, setCurrentAnimalType] = useState('');
     const [currentAnimalFact, setCurrentAnimalFact] = useState('');
+    const [currentAnimalPoints, setCurrentAnimalPoints] = useState('');
 
     const animals = [
-        { name: 'C-Teater', imageSource: require('../assets/images/turtle.png'), type: 'Sea Turtle', threshold: 100,
-            fact: "It's estimated that approximately 52% of all sea turtles have eaten plastic! For most turtles, ingesting ONE piece of plastic is enough to kill them."},
-        { name: 'Doile', imageSource: require('../assets/images/dolphin.png'), type: 'Dolphin', threshold: 200 },
-        { name: 'Ellaphant', imageSource: require('../assets/images/elephant.png'), type: 'Elephant', threshold: 300 },
-        { name: 'Shindo', imageSource: require('../assets/images/whale.png'), type: 'Whale', threshold: 500 },
-        { name: 'Ziley', imageSource: require('../assets/images/fish.png'), type: 'Tuna', threshold: 700 },
-        { name: 'Finneril', imageSource: require('../assets/images/orange_fish.png'), type: 'Clownfish', threshold: 1000 },
-        { name: 'C-Boynel', imageSource: require('../assets/images/seagull.png'), type: 'Seagull', threshold: 1500 },
-        { name: 'Craleb', imageSource: require('../assets/images/crab.png'), type: 'Crab', threshold: 2000 },
-        { name: 'Fellie', imageSource: require('../assets/images/fox.png'), type: 'Fox', threshold: 2500 },
-        { name: 'Shinx', imageSource: require('../assets/images/starfish.png'), type: 'Starfish', threshold: 3000 },
-        { name: 'Trig', imageSource: require('../assets/images/tiger.png'), type: 'Tiger', threshold: 3500 },
-        { name: 'Shelly', imageSource: require('../assets/images/seahorse.png'), type: 'Seahorse', threshold: 4000 },
+        {
+            name: 'C-Teater', imageSource: require('../assets/images/cartoonAnimals/turtle.png'), imageSourceReal: require('../assets/images/realAnimals/turtle.jpg'), type: 'Sea Turtle', threshold: 100,
+            fact: "It's estimated that approximately 52% of all sea turtles have eaten plastic! For most turtles, ingesting ONE piece of plastic is enough to kill them."
+        },
+        { name: 'Doile', imageSource: require('../assets/images/cartoonAnimals/dolphin.png'), imageSourceReal: require('../assets/images/realAnimals/dolphin.jpg'), type: 'Dolphin', threshold: 200 },
+        { name: 'Ellaphant', imageSource: require('../assets/images/cartoonAnimals/elephant.png'), imageSourceReal: require('../assets/images/realAnimals/elephant.jpg'), type: 'Elephant', threshold: 300 },
+        { name: 'Shindo', imageSource: require('../assets/images/cartoonAnimals/whale.png'), imageSourceReal: require('../assets/images/realAnimals/whale.jpg'), type: 'Whale', threshold: 500 },
+        { name: 'Ziley', imageSource: require('../assets/images/cartoonAnimals/fish.png'), imageSourceReal: require('../assets/images/realAnimals/tuna.jpg'), type: 'Tuna', threshold: 700 },
+        { name: 'Finneril', imageSource: require('../assets/images/cartoonAnimals/orange_fish.png'), imageSourceReal: require('../assets/images/realAnimals/clownfish.jpeg'), type: 'Clownfish', threshold: 1000 },
+        { name: 'C-Boynel', imageSource: require('../assets/images/cartoonAnimals/seagull.png'), imageSourceReal: require('../assets/images/realAnimals/seagull.jpg'), type: 'Seagull', threshold: 1500 },
+        { name: 'Craleb', imageSource: require('../assets/images/cartoonAnimals/crab.png'), imageSourceReal: require('../assets/images/realAnimals/crab.jpg'), type: 'Crab', threshold: 2000 },
+        { name: 'Fellie', imageSource: require('../assets/images/cartoonAnimals/fox.png'), imageSourceReal: require('../assets/images/realAnimals/fox.png'), type: 'Fox', threshold: 2500 },
+        { name: 'Shinx', imageSource: require('../assets/images/cartoonAnimals/starfish.png'), imageSourceReal: require('../assets/images/realAnimals/starfish.jpg'), type: 'Starfish', threshold: 3000 },
+        { name: 'Trig', imageSource: require('../assets/images/cartoonAnimals/tiger.png'), imageSourceReal: require('../assets/images/realAnimals/tiger.jpg'), type: 'Tiger', threshold: 3500 },
+        { name: 'Shelly', imageSource: require('../assets/images/cartoonAnimals/seahorse.png'), imageSourceReal: require('../assets/images/realAnimals/seahorse.jpg'), type: 'Seahorse', threshold: 4000 },
     ];
 
     const handleAnimalPress = (animal, isBlurry) => {
         setCurrentAnimalName(animal.name);
-        setCurrentAnimalImage(animal.imageSource);
+        setCurrentAnimalRealImage(animal.imageSourceReal);
         setCurrentAnimalType(animal.type);
         setCurrentAnimalFact(animal.fact);
+        setCurrentAnimalPoints(animal.threshold);
 
         if (isBlurry) {
-            setModalVisible(true); 
+            setModalVisible(true);
         } else {
-            setUnblurredModalVisible(true); 
+            setUnblurredModalVisible(true);
         }
     };
 
@@ -110,17 +114,14 @@ export default function Rewards() {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Congratulations!</Text>
-                        <Image source={currentAnimalImage} style={styles.unblurredAnimalImage} />
-                        <Text style={styles.modalText}>
-                            You have unlocked {currentAnimalName}
-                        </Text>
-                        <Text style={styles.modalText}>
-                            Type: {currentAnimalType}!
-                        </Text>
-                        <Text style={styles.modalText}>
-                            Did you know... {currentAnimalType}
-                        </Text>
+                        <Text style={styles.modalTitle}>You have unlocked {currentAnimalName}!</Text>
+                        <Image source={currentAnimalRealImage} style={styles.unblurredAnimalImage} />
+                        <View style={styles.unblurredTextContainer}>
+                            <Text style={styles.unblurredModalText}>Type: {currentAnimalType}!</Text>
+                            <Text style={styles.unblurredModalText}>Did you know... </Text>
+                            <Text style={styles.unblurredModalText}>{currentAnimalFact}</Text>
+                            <Text style={styles.unblurredModalText}>Points: {currentAnimalPoints}</Text>
+                        </View>
                         <Pressable
                             style={styles.closeButton}
                             onPress={() => setUnblurredModalVisible(false)}
@@ -198,6 +199,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 100,
     },
     modalContent: {
         width: '80%',
@@ -221,6 +223,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 20,
     },
+    unblurredTextContainer: {
+        alignItems: 'left',
+    },
+    unblurredModalText: {
+        fontSize: 14,
+        textAlign: 'left',
+        marginBottom: 20,
+    },
     closeButton: {
         backgroundColor: 'white',
         paddingVertical: 10,
@@ -232,8 +242,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     unblurredAnimalImage: {
-        width: 100,
-        height: 100,
-        marginBottom: 10,
+        width: 290,
+        height: 200,
+        marginTop: 10,
+        marginBottom: 20,
     },
 });

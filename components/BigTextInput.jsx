@@ -130,7 +130,7 @@ export default function BigTextInput({ navigation }) {
                         sdjfklaj asldkfjkldsa asjdkfljhkj jh jkhjkh jk jhjk hjkh aksdjfkslad kalsdjf kals
                         kasjf kalsdjf klfdjsa kasdljf lkfjdaskljsdklfjdlaskjfd saklsdjfklajsdlkfjads
                         asldjflsda
-                        asdklfjklsajd fklasdkfj
+                        asdklfjklsajd fklasdkfjlkasjdkfljsdklajfkldsa jaksldfj klasjdf as
                     </Text>
                 </ScrollView>
                 <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
