@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "tsty",
-    "slug": "tsty",
+    "name": "goTO",
+    "slug": "goTO",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/leaf.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/leaf.png",
+      "image": "./assets/images/leaf.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

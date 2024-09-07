@@ -11,6 +11,7 @@ import LogIn from './components/LogIn';
 import BigTextInput from './components/BigTextInput';
 import Rewards from './components/Rewards';
 import MapScreen from './components/MapScreen';
+import CalendarScreen from './components/Calendar';
 
 const Tab = createBottomTabNavigator();
 
@@ -63,11 +64,11 @@ export default function App() {
             <Tab.Screen name="Log In">
               {props => <LogIn {...props} notificationCallback={schedulePushNotification} />}
             </Tab.Screen>
-            <Tab.Screen name="Clean" component={BigTextInput} />
             <Tab.Screen name="Rewards">
               {props => <Rewards {...props} notificationCallback={schedulePushNotification} />}
             </Tab.Screen>
             <Tab.Screen name="Map" component={MapScreen} />
+            <Tab.Screen name='Calendar' component={CalendarScreen} />
           </Tab.Navigator>
         </NavigationContainer>
       </LitterProvider>

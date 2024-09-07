@@ -30,7 +30,7 @@ export default function HomeScreen() {
 
     const handleButtonPressClean = () => {
         playSound();
-        navigation.navigate('Clean')
+        navigation.navigate('Map')
     }
 
     const handleButtonPressLogIn = () => {
