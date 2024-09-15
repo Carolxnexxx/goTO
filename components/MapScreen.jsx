@@ -16,9 +16,9 @@ import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import { storeData, getData } from '../storage';
+import RegularButton from './RegularButton.jsx';
 
-export default function MapScreen() {
-    const navigation = useNavigation();
+export default function MapScreen({ navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [images, setImages] = useState([]);
     const [markers, setMarkers] = useState([]);
@@ -164,12 +164,14 @@ export default function MapScreen() {
                 </MapView>
             </View>
 
-            <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-                <FontAwesome name="plus" size={24} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.userButton}>
-                <FontAwesome name="users" size={24} color="white" />
-            </TouchableOpacity>
+            <View style={styles.buttonContainers}>
+                <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+                    <FontAwesome name="plus" size={24} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.userButton}>
+                    <FontAwesome name="users" size={24} color="white" />
+                </TouchableOpacity>
+            </View>
 
             <Modal
                 animationType="slide"
@@ -215,6 +217,8 @@ export default function MapScreen() {
                 </View>
             </Modal>
 
+            <RegularButton text="Calendar" onPress={() => navigation.navigate("Calendar")} />
+
         </View>
     );
 }
@@ -239,6 +243,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
+        marginBottom: 15,
     },
     map: {
         width: '100%',
@@ -273,6 +278,12 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 5,
+    },
+    buttonContainers: {
+        top: -10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
     },
     modalOverlay: {
         flex: 1,

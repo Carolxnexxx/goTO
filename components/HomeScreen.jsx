@@ -2,15 +2,15 @@ import React, { useEffect, useState, useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Audio } from 'expo-av';
-import { LitterContext, LitterProvider } from './LitterContext';
 import Button from './Button.jsx';
 import Title from './Title.jsx';
 import Header from './Header.jsx'
+import { NavigationProp } from '@react-navigation/native';
+import { FIREBASE_AUTH } from '../FirebaseConfig';
 
-export default function HomeScreen() {
-    const navigation = useNavigation();
+export default function HomeScreen({ navigation }) {
     const [sound, setSound] = useState();
-    const { totalLitter } = useContext(LitterContext);
+    // const { totalLitter } = useContext(LitterContext);
 
     async function playSound() {
         const { sound } = await Audio.Sound.createAsync(require('../assets/sounds/button_click.mp3')
@@ -30,29 +30,39 @@ export default function HomeScreen() {
 
     const handleButtonPressClean = () => {
         playSound();
-        navigation.navigate('Map')
+        navigation.navigate('MapScreen');
     }
 
-    const handleButtonPressLogIn = () => {
+    const handleButtonPressSignOut = () => {
         playSound();
-        navigation.navigate('Log In')
+        FIREBASE_AUTH.signOut();
     }
 
     const handleButtonPressRewards = () => {
         playSound();
-        navigation.navigate('Rewards')
+        navigation.navigate('Rewards');
     }
 
     return (
-        <LitterProvider>
-            <View style={styles.container}>
-                <Header navigation={navigation} text="Welcome! Start" text2="Cleaning Litter" text3="Today!" />
-                <Title text="Pieces of litter cleaned:" subtext={totalLitter} />
-                <Button text="Sign in" subtext="or Sign up" onPress={() => handleButtonPressLogIn()} />
-                <Button text="Clean" subtext="Clean up trash and litter to earn points!" onPress={() => handleButtonPressClean()} />
-                <Button text="Rewards" subtext="Get rewards from the points you earn!" onPress={() => handleButtonPressRewards()} />
-            </View>
-        </LitterProvider>
+        <View style={styles.container}>
+            <Header navigation={navigation} text="Welcome! Start" text2="Cleaning Litter" text3="Today!" />
+            <Title text="Pieces of litter cleaned:" subtext={"900"} />
+            <Button 
+                text="Clean" 
+                subtext="Clean up trash and litter to earn points!" 
+                onPress={() => handleButtonPressClean()} 
+            />
+            <Button 
+                text="Rewards" 
+                subtext="Get rewards from the points you earn!" 
+                onPress={() => handleButtonPressRewards()} 
+            />
+            <Button 
+                text="Sign Out" 
+                subtext="or log into a different account" 
+                onPress={() => handleButtonPressSignOut()} 
+            />
+        </View>
 
     );
 }

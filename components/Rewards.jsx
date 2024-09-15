@@ -20,7 +20,8 @@ function AnimalItem({ name, imageSource, index, blurRadius, onPress }) {
 }
 
 export default function Rewards() {
-    const { totalLitter } = useContext(LitterContext);
+    // const { totalLitter } = useContext(LitterContext);
+    const totalLitter = '900';
 
     const [modalVisible, setModalVisible] = useState(false);
     const [unblurredModalVisible, setUnblurredModalVisible] = useState(false);

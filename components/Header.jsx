@@ -35,9 +35,11 @@ export default function Header(props) {
       <TouchableOpacity onPress={() => handleButtonPress()}>
           <Image style={styles.icon} source={require('../assets/images/icon.png')} />
         </TouchableOpacity>
+        <View style={styles.textContainer}>
         <Text style={styles.titleText}>{props.text}</Text>
         <Text style={styles.titleText}>{props.text2}</Text>
         <Text style={styles.titleText}>{props.text3}</Text>
+        </View>
       </View>
     </View>
   );
@@ -51,6 +53,10 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 0,
   },
+  textContainer: {
+    marginTop: 40,
+    alignItems: 'center',
+  },
   header: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -58,17 +64,17 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: "white"
+    color: "white",
   },
   topImage: {
     position: 'absolute',
     top: 0,
     left: 0,
     width: "100%",
-    height: 275,
+    height: 390,
   },
   icon: {
-    top: 10,
+    top: 30,
     left: -170,
     marginBottom: 10,
     height: 60,

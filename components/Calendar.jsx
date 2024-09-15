@@ -65,7 +65,7 @@ export default function CalendarScreen() {
                     </View>
                 </View>
             </View>
-            <RegularButton text="Add Another Clean Up" onPress={() => navigation.navigate('Map')} />
+            <RegularButton text="Add Another Clean Up" onPress={() => navigation.navigate('MapScreen')} />
         </View>
     );
 };
