@@ -12,13 +12,20 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourname.gotoproject",
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need access to your camera to take pictures of litter."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/leaf.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/images/leaf.png"

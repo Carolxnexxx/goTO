@@ -1,60 +1,80 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Button, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, TextInput, ActivityIndicator, KeyboardAvoidingView, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import Header from './Header.jsx';
 import RegularButton from './RegularButton.jsx';
-import { FIREBASE_AUTH } from '../FirebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
-export default function LogIn({ notificationCallback }) {
-
+export default function LogIn({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const auth = FIREBASE_AUTH;
 
     const signIn = async () => {
         setLoading(true);
         try {
-            const response = await signInWithEmailAndPassword(auth, email, password);
-            console.log(response);
+            // Ensure email and password are strings before comparing
+            const storedEmail = await AsyncStorage.getItem('email');
+            const storedPassword = await AsyncStorage.getItem('password');
+    
+            if (storedEmail === String(email) && storedPassword === String(password)) {
+                Alert.alert('Login Successful', 'Welcome back!');
+                // Navigate to the HomeScreen after successful login
+                navigation.navigate('HomeScreen');
+            } else {
+                Alert.alert('Login Failed', 'Invalid email or password');
+            }
         } catch (error) {
             console.log(error);
-            alert('sign in failed')
+            alert('Sign in failed');
         } finally {
             setLoading(false);
         }
-    }
+    };
+    
 
     const signUp = async () => {
         setLoading(true);
         try {
-            const response = await createUserWithEmailAndPassword(auth, email, password);
-            console.log(response);
-            alert('check ur email')
+            // Store email and password in AsyncStorage as strings
+            await AsyncStorage.setItem('email', String(email));
+            await AsyncStorage.setItem('password', String(password));
+            Alert.alert('Sign Up Successful', 'Please log in with your new account');
         } catch (error) {
             console.log(error);
-            alert("sign up failed");
+            alert('Sign up failed');
         } finally {
             setLoading(false);
         }
-    }
+    };
+    
 
     return (
         <View style={styles.container}>
             <Header text="Sign in or Sign up" />
-            <KeyboardAvoidingView behavior='padding'>
+            <KeyboardAvoidingView behavior="padding">
                 <View style={styles.inputContainer}>
-                <TextInput style={styles.input} value={email} placeholder="email" onChangeText={(text) => setEmail(text)} />
-                <TextInput style={styles.input} value={password} placeholder="password" secureTextEntry={true} onChangeText={(text) => setPassword(text)} />
+                    <TextInput
+                        style={styles.input}
+                        value={email}
+                        placeholder="Email"
+                        onChangeText={(text) => setEmail(text)}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={password}
+                        placeholder="Password"
+                        secureTextEntry={true}
+                        onChangeText={(text) => setPassword(text)}
+                    />
 
-                {loading ? (
-                    <ActivityIndicator size="large" color="#000ff" />
-                ) : (
-                    <>
-                        <RegularButton text="Login" onPress={signIn} />
-                        <RegularButton text="Create account" onPress={signUp} />
-                    </>
-                )}
+                    {loading ? (
+                        <ActivityIndicator color="#0000ff"/>
+                    ) : (
+                        <>
+                            <RegularButton text="Login" onPress={signIn} />
+                            <RegularButton text="Create Account" onPress={signUp} />
+                        </>
+                    )}
                 </View>
             </KeyboardAvoidingView>
         </View>

@@ -1,28 +1,112 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Calendar } from 'react-native-calendars'; // Import the Calendar component
+import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { Calendar } from 'react-native-calendars'; 
 import Header from './Header.jsx';
 import { useNavigation } from '@react-navigation/native';
 import RegularButton from './RegularButton.jsx';
+import { getData } from '../storage'; 
+import { Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 export default function CalendarScreen() {
     const navigation = useNavigation();
-
     const [markedDates, setMarkedDates] = useState({});
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedCleanup, setSelectedCleanup] = useState(null); 
 
     useEffect(() => {
-        // Example dates marked for cleanups and the current date
-        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-        setMarkedDates({
-            [today]: { selected: true, marked: true, selectedColor: '#ff6666' }, // Example of current date
-            '2024-09-11': { marked: true, dotColor: '#6ccf8e' }, // Example clean-up date
-            '2024-09-15': { marked: true, dotColor: '#6ccf8e' },
-        });
+        const fetchCleanups = async () => {
+            try {
+                const savedCleanUps = await AsyncStorage.getItem('cleanups');
+                const parsedCleanUps = savedCleanUps ? JSON.parse(savedCleanUps) : [];
+                
+                const today = new Date().toISOString().split('T')[0]; 
+
+                let updatedMarkedDates = {};
+
+                if (Array.isArray(parsedCleanUps)) {
+                    parsedCleanUps.forEach((cleanup) => {
+                        const cleanupDate = cleanup.date; 
+
+                        if (cleanupDate) {
+                            updatedMarkedDates[cleanupDate] = {
+                                marked: true,
+                                dotColor: '#6ccf8e', 
+                            };
+                        }
+                    });
+                }
+
+                console.log('Updated markedDates:', updatedMarkedDates);
+                setMarkedDates(updatedMarkedDates);
+            }
+            catch (error) {
+                console.error('Error fetching cleanups:', error);
+            }
+        };
+        fetchCleanups(); 
     }, []);
 
-    // Function to handle day press (if you want any functionality when a date is clicked)
-    const onDayPress = (day) => {
-        console.log('Selected day', day);
+    const onDayPress = async (day) => {
+        console.log('Pressed day:', day.dateString); 
+        
+        if (markedDates[day.dateString] && markedDates[day.dateString].dotColor === '#6ccf8e') {
+            try {
+                const savedCleanUps = await AsyncStorage.getItem('cleanups');
+                
+                if (savedCleanUps) {
+                    const cleanups = JSON.parse(savedCleanUps);
+                    console.log('Cleanups retrieved from AsyncStorage:', cleanups);
+    
+                    const cleanup = cleanups.find(c => c.date === day.dateString);
+                    console.log('Cleanup for selected day:', cleanup); 
+    
+                    if (cleanup) {
+                        console.log('Pieces of litter cleaned:', cleanup.pieces); 
+                        setSelectedCleanup(cleanup); 
+                        setModalVisible(true); 
+                    } else {
+                        console.log('No cleanup data for this day'); 
+                    }
+                } else {
+                    console.log('No cleanups found in AsyncStorage'); 
+                }
+            } catch (error) {
+                console.log('Error fetching cleanups from AsyncStorage:', error); 
+            }
+        } else {
+            console.log('No cleanup available for this date or no green dot'); 
+        }
+    };
+
+    const getCleanupForDate = async (date) => {
+        try {
+            const savedCleanUps = await getData('@cleanups');
+            console.log('Stored cleanups:', savedCleanUps); 
+
+            if (savedCleanUps) {
+                if (typeof savedCleanUps === 'object' && !Array.isArray(savedCleanUps)) {
+                    savedCleanUps = Object.values(savedCleanUps).flat();
+                }
+    
+                console.log('Normalized cleanups array:', savedCleanUps);
+    
+                const cleanupsForDate = savedCleanUps.filter(cleanup => cleanup.date === date);
+    
+                console.log('Found cleanups for date:', cleanupsForDate); 
+    
+                return cleanupsForDate.length > 0 ? cleanupsForDate[0] : null;
+            }
+            return null; 
+        } catch (error) {
+            console.error('Error fetching cleanups:', error);
+            return null;
+        }
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+        setSelectedCleanup(null); 
     };
 
     return (
@@ -56,21 +140,56 @@ export default function CalendarScreen() {
                         <Text style={styles.legendText}>Past Clean Ups</Text>
                     </View>
                     <View style={styles.legendItem}>
-                        <View style={[styles.legendDot, { backgroundColor: '#a8d3e6' }]} />
-                        <Text style={styles.legendText}>Future Clean Ups</Text>
-                    </View>
-                    <View style={styles.legendItem}>
                         <View style={[styles.legendDot, { backgroundColor: '#ff6666' }]} />
                         <Text style={styles.legendText}>Current date</Text>
                     </View>
                 </View>
             </View>
             <RegularButton text="Add Another Clean Up" onPress={() => navigation.navigate('MapScreen')} />
+
+            {selectedCleanup && modalVisible && (
+                <Modal
+                    visible={modalVisible}
+                    animationType="slide"
+                    transparent={true}
+                    onRequestClose={closeModal}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.modalTitle}>Cleanup Details</Text>
+
+                            <Text style={styles.modalText}>
+                                Pieces of Litter Cleaned: {selectedCleanup.pieces || 'N/A'}
+                            </Text>
+
+                            {selectedCleanup.images && selectedCleanup.images.length > 0 ? (
+                                <Image
+                                    source={{ uri: selectedCleanup.images[0] }}
+                                    style={styles.cleanupImage}
+                                    onError={() => console.error('Image failed to load')}
+                                />
+                            ) : (
+                                <Text style={styles.modalText}>No images available.</Text>
+                            )}
+
+                            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                                <Text style={styles.closeButtonText}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    cleanupImage: {
+        width: 250, 
+        height: 200,
+        marginBottom: 10, 
+        borderRadius: 10, 
+    },
     container: {
         flex: 1,
         alignItems: 'center',
@@ -83,12 +202,6 @@ const styles = StyleSheet.create({
     calendarContainer: {
         width: '100%',
         marginLeft: 40,
-    },
-    header: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        color: '#333',
     },
     calendar: {
         borderRadius: 10,
@@ -134,5 +247,36 @@ const styles = StyleSheet.create({
     legendText: {
         fontSize: 12,
         color: '#333',
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContainer: {
+        width: 300,
+        padding: 20,
+        backgroundColor: 'white', // Ensure the modal has a solid white background
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalText: {
+        fontSize: 16,
+        marginBottom: 10,
+    },
+    closeButton: {
+        marginTop: 20,
+        backgroundColor: '#6ccf8e',
+        padding: 10,
+        borderRadius: 5,
+    },
+    closeButtonText: {
+        color: 'white',
+        fontSize: 16,
     },
 });

@@ -1,7 +1,8 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, Modal, TouchableOpacity, Pressable } from 'react-native';
-import { LitterContext } from './LitterContext.jsx';
 import Header from './Header.jsx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 function AnimalItem({ name, imageSource, index, blurRadius, onPress }) {
     return (
@@ -20,9 +21,8 @@ function AnimalItem({ name, imageSource, index, blurRadius, onPress }) {
 }
 
 export default function Rewards() {
-    // const { totalLitter } = useContext(LitterContext);
-    const totalLitter = '900';
 
+    const [totalPieces, setTotalPieces] = useState(0); 
     const [modalVisible, setModalVisible] = useState(false);
     const [unblurredModalVisible, setUnblurredModalVisible] = useState(false);
 
@@ -34,21 +34,50 @@ export default function Rewards() {
 
     const animals = [
         {
-            name: 'C-Teater', imageSource: require('../assets/images/cartoonAnimals/turtle.png'), imageSourceReal: require('../assets/images/realAnimals/turtle.jpg'), type: 'Sea Turtle', threshold: 100,
+            name: 'C-Teater', imageSource: require('../assets/images/cartoonAnimals/turtle.png'), imageSourceReal: require('../assets/images/realAnimals/turtle.jpg'), type: 'Sea Turtle', threshold: 10,
             fact: "It's estimated that approximately 52% of all sea turtles have eaten plastic! For most turtles, ingesting ONE piece of plastic is enough to kill them."
         },
-        { name: 'Doile', imageSource: require('../assets/images/cartoonAnimals/dolphin.png'), imageSourceReal: require('../assets/images/realAnimals/dolphin.jpg'), type: 'Dolphin', threshold: 200 },
-        { name: 'Ellaphant', imageSource: require('../assets/images/cartoonAnimals/elephant.png'), imageSourceReal: require('../assets/images/realAnimals/elephant.jpg'), type: 'Elephant', threshold: 300 },
-        { name: 'Shindo', imageSource: require('../assets/images/cartoonAnimals/whale.png'), imageSourceReal: require('../assets/images/realAnimals/whale.jpg'), type: 'Whale', threshold: 500 },
-        { name: 'Ziley', imageSource: require('../assets/images/cartoonAnimals/fish.png'), imageSourceReal: require('../assets/images/realAnimals/tuna.jpg'), type: 'Tuna', threshold: 700 },
-        { name: 'Finneril', imageSource: require('../assets/images/cartoonAnimals/orange_fish.png'), imageSourceReal: require('../assets/images/realAnimals/clownfish.jpeg'), type: 'Clownfish', threshold: 1000 },
-        { name: 'C-Boynel', imageSource: require('../assets/images/cartoonAnimals/seagull.png'), imageSourceReal: require('../assets/images/realAnimals/seagull.jpg'), type: 'Seagull', threshold: 1500 },
-        { name: 'Craleb', imageSource: require('../assets/images/cartoonAnimals/crab.png'), imageSourceReal: require('../assets/images/realAnimals/crab.jpg'), type: 'Crab', threshold: 2000 },
-        { name: 'Fellie', imageSource: require('../assets/images/cartoonAnimals/fox.png'), imageSourceReal: require('../assets/images/realAnimals/fox.png'), type: 'Fox', threshold: 2500 },
-        { name: 'Shinx', imageSource: require('../assets/images/cartoonAnimals/starfish.png'), imageSourceReal: require('../assets/images/realAnimals/starfish.jpg'), type: 'Starfish', threshold: 3000 },
-        { name: 'Trig', imageSource: require('../assets/images/cartoonAnimals/tiger.png'), imageSourceReal: require('../assets/images/realAnimals/tiger.jpg'), type: 'Tiger', threshold: 3500 },
-        { name: 'Shelly', imageSource: require('../assets/images/cartoonAnimals/seahorse.png'), imageSourceReal: require('../assets/images/realAnimals/seahorse.jpg'), type: 'Seahorse', threshold: 4000 },
+        { name: 'Doile', imageSource: require('../assets/images/cartoonAnimals/dolphin.png'), imageSourceReal: require('../assets/images/realAnimals/dolphin.jpg'), type: 'Dolphin', threshold: 20 },
+        { name: 'Ellaphant', imageSource: require('../assets/images/cartoonAnimals/elephant.png'), imageSourceReal: require('../assets/images/realAnimals/elephant.jpg'), type: 'Elephant', threshold: 30 },
+        { name: 'Shindo', imageSource: require('../assets/images/cartoonAnimals/whale.png'), imageSourceReal: require('../assets/images/realAnimals/whale.jpg'), type: 'Whale', threshold: 50 },
+        { name: 'Ziley', imageSource: require('../assets/images/cartoonAnimals/fish.png'), imageSourceReal: require('../assets/images/realAnimals/tuna.jpg'), type: 'Tuna', threshold: 70 },
+        { name: 'Finneril', imageSource: require('../assets/images/cartoonAnimals/orange_fish.png'), imageSourceReal: require('../assets/images/realAnimals/clownfish.jpeg'), type: 'Clownfish', threshold: 100 },
+        { name: 'C-Boynel', imageSource: require('../assets/images/cartoonAnimals/seagull.png'), imageSourceReal: require('../assets/images/realAnimals/seagull.jpg'), type: 'Seagull', threshold: 150 },
+        { name: 'Craleb', imageSource: require('../assets/images/cartoonAnimals/crab.png'), imageSourceReal: require('../assets/images/realAnimals/crab.jpg'), type: 'Crab', threshold: 200 },
+        { name: 'Fellie', imageSource: require('../assets/images/cartoonAnimals/fox.png'), imageSourceReal: require('../assets/images/realAnimals/fox.png'), type: 'Fox', threshold: 250 },
+        { name: 'Shinx', imageSource: require('../assets/images/cartoonAnimals/starfish.png'), imageSourceReal: require('../assets/images/realAnimals/starfish.jpg'), type: 'Starfish', threshold: 300 },
+        { name: 'Trig', imageSource: require('../assets/images/cartoonAnimals/tiger.png'), imageSourceReal: require('../assets/images/realAnimals/tiger.jpg'), type: 'Tiger', threshold: 350 },
+        { name: 'Shelly', imageSource: require('../assets/images/cartoonAnimals/seahorse.png'), imageSourceReal: require('../assets/images/realAnimals/seahorse.jpg'), type: 'Seahorse', threshold: 400 },
     ];
+
+    const calculateTotalPieces = async () => {
+        try {
+            const savedCleanUps = await AsyncStorage.getItem('cleanups');
+            console.log('Fetched CleanUps:', savedCleanUps); 
+
+            if (savedCleanUps) {
+                const cleanups = JSON.parse(savedCleanUps);
+                console.log('Cleanups:', cleanups); 
+
+                const total = cleanups.reduce((sum, cleanup) => {
+                    return sum + (typeof cleanup.pieces === 'number' ? cleanup.pieces : 0);
+                }, 0);
+
+                setTotalPieces(total);
+            } else {
+                setTotalPieces(0); 
+            }
+        } catch (error) {
+            console.error('Error fetching cleanups:', error);
+            setTotalPieces(0); 
+        }
+    };
+
+    useEffect(() => {
+        calculateTotalPieces(); 
+    }, []);
+
+    const litter = totalPieces;
 
     const handleAnimalPress = (animal, isBlurry) => {
         setCurrentAnimalName(animal.name);
@@ -70,7 +99,7 @@ export default function Rewards() {
             <View style={styles.animalContainer}>
                 <View style={styles.animalList}>
                     {animals.map((animal, index) => {
-                        const isBlurry = totalLitter <= animal.threshold;
+                        const isBlurry = litter <= animal.threshold;
                         return (
                             <AnimalItem
                                 key={index}

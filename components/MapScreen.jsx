@@ -12,17 +12,16 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { FontAwesome } from '@expo/vector-icons';
 import Header from './Header.jsx';
-import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
-import { storeData, getData } from '../storage';
 import RegularButton from './RegularButton.jsx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function MapScreen({ navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
+    const [infoModalVisible, setInfoModalVisible] = useState(false);
     const [images, setImages] = useState([]);
     const [markers, setMarkers] = useState([]);
-    const [cleanUps, setCleanUps] = useState([]);
     const [region, setRegion] = useState({
         latitude: 43.6532,
         longitude: -79.3832,
@@ -32,7 +31,7 @@ export default function MapScreen({ navigation }) {
     const [currentLocation, setCurrentLocation] = useState(null);
 
     useEffect(() => {
-        const fetchLocation = async () => {
+        const fetchLocationAndMarkers = async () => {
             try {
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
@@ -51,84 +50,86 @@ export default function MapScreen({ navigation }) {
                     latitude: coords.latitude,
                     longitude: coords.longitude,
                 });
+
+                await loadMarkers();
             } catch (error) {
-                console.error('Error getting location:', error);
-                Alert.alert('Error', 'Failed to get location. Please try again later.');
+                console.error('Error initializing map:', error);
+                Alert.alert('Error', 'Failed to initialize map. Please try again later.');
             }
         };
 
-        fetchLocation();
-        loadCleanUps();
-        loadMarkers();
+        fetchLocationAndMarkers();
     }, []);
-
-    const loadCleanUps = async () => {
-        try {
-            const savedCleanUps = await getData('@cleanUps');
-            setCleanUps(savedCleanUps || []);
-        } catch (error) {
-            console.error('Failed to load cleanUps:', error);
-        }
-    };
 
     const loadMarkers = async () => {
         try {
-            const savedMarkers = await getData('@markers');
-            setMarkers(savedMarkers || []);
+            const storedMarkers = await AsyncStorage.getItem('cleanups');
+            if (storedMarkers) {
+                const parsedMarkers = JSON.parse(storedMarkers);
+                setMarkers(parsedMarkers);
+                console.log('Markers loaded:', parsedMarkers);
+            } else {
+                console.log('No markers found in storage.');
+            }
         } catch (error) {
             console.error('Failed to load markers:', error);
         }
     };
 
-    const addMarker = () => {
+    const addMarker = async () => {
         if (!currentLocation) {
             Alert.alert('Error', 'Unable to get current location. Please try again.');
             return;
         }
 
         const newMarker = {
-            id: markers.length + 1,
+            id: Date.now().toString(),
+            date: today,
             latitude: currentLocation.latitude,
             longitude: currentLocation.longitude,
-        };
-
-        const updatedMarkers = [...markers, newMarker];
-        setMarkers(updatedMarkers);
-        storeData('@markers', updatedMarkers);
-
-        const currentDate = new Date().toLocaleDateString();
-        const newCleanup = {
-            date: currentDate,
-            location: currentLocation,
             pieces: images.length,
             images: [...images],
         };
 
-        const updatedCleanUps = [...cleanUps, newCleanup];
-        setCleanUps(updatedCleanUps);
-        storeData('@cleanUps', updatedCleanUps);
+        const updatedMarkers = [...markers, newMarker];
 
+        try {
+            await AsyncStorage.setItem('cleanups', JSON.stringify(updatedMarkers));
+            console.log('Successfully saved to AsyncStorage:', updatedMarkers);
+        } catch (error) {
+            console.error('Error saving data:', error);
+            Alert.alert('Failed to save data.');
+        }
+
+        setMarkers(updatedMarkers);
         setModalVisible(false);
         setImages([]);
     };
 
+    const today = new Date().toISOString().split('T')[0];
+
     const pickImage = async () => {
-        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+        try {
+            const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
-        if (!permissionResult.granted) {
-            Alert.alert('Permission denied', 'You need to grant camera permission to use this feature');
-            return;
-        }
+            if (!permissionResult.granted) {
+                Alert.alert('Permission denied', 'You need to grant camera permission to use this feature');
+                return;
+            }
 
-        const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-        });
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            });
 
-        if (!result.canceled) {
-            setImages([...images, result.assets[0].uri]);
+            if (!result.canceled) {
+                setImages([...images, result.assets[0].uri]);
+            }
+        } catch (error) {
+            console.error('Error opening camera:', error);
+            Alert.alert('Error', 'There was an issue opening the camera. Please check if another app is using it.');
         }
     };
 
@@ -150,7 +151,6 @@ export default function MapScreen({ navigation }) {
                     showsCompass={true}
                     rotateEnabled={true}
                 >
-
                     {markers.map((marker) => (
                         <Marker
                             key={marker.id}
@@ -159,17 +159,17 @@ export default function MapScreen({ navigation }) {
                                 longitude: marker.longitude,
                             }}
                             pinColor="#6ccf8e"
+                            title={`Cleanup on ${marker.date}`}
+                            description={`Pieces: ${marker.pieces}`}
                         />
                     ))}
                 </MapView>
+
             </View>
 
             <View style={styles.buttonContainers}>
                 <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                     <FontAwesome name="plus" size={24} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.userButton}>
-                    <FontAwesome name="users" size={24} color="white" />
                 </TouchableOpacity>
             </View>
 
@@ -181,7 +181,6 @@ export default function MapScreen({ navigation }) {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        {/* Close Button */}
                         <TouchableOpacity
                             style={styles.closeModalButton}
                             onPress={() => setModalVisible(false)}
@@ -210,15 +209,20 @@ export default function MapScreen({ navigation }) {
                             ))}
                         </ScrollView>
 
-                        <TouchableOpacity style={styles.closeButton} onPress={addMarker}>
+                        <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => {
+                                addMarker(); 
+                            }}
+                        >
                             <Text style={styles.closeButtonText}>Track</Text>
                         </TouchableOpacity>
+
                     </View>
                 </View>
             </Modal>
 
             <RegularButton text="Calendar" onPress={() => navigation.navigate("Calendar")} />
-
         </View>
     );
 }
@@ -235,7 +239,7 @@ const styles = StyleSheet.create({
     },
     mapContainer: {
         width: 370,
-        height: 550,
+        height: 500,
         borderRadius: 15,
         overflow: 'hidden',
         backgroundColor: 'white',
@@ -251,8 +255,8 @@ const styles = StyleSheet.create({
     },
     addButton: {
         position: 'absolute',
-        bottom: 20,
-        right: 40,
+        bottom: 30,
+        right: -170,
         width: 50,
         height: 50,
         borderRadius: 25,
@@ -264,26 +268,20 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 5,
     },
-    userButton: {
-        position: 'absolute',
-        bottom: 20,
-        left: 40,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: '#00aaff',
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
+    calendarContainer: {
+        marginTop: 20,
     },
-    buttonContainers: {
-        top: -10,
+    cleanupItem: {
+        marginBottom: 10,
+    },
+    imagePreview: {
+        width: 100,
+        height: 100,
+        borderRadius: 20,
+    },
+    imagePreviewContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
+        marginBottom: 10,
     },
     modalOverlay: {
         flex: 1,
@@ -301,47 +299,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
     },
-    imageButton: {
-        backgroundColor: '#ffffff',
-        padding: 10,
-        borderRadius: 5,
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
         marginBottom: 10,
-        width: '100%',
-        alignItems: 'center',
-    },
-    imageButtonText: {
-        color: 'black',
-        fontSize: 16,
-    },
-    imagePreviewContainer: {
-        flexDirection: 'row',
-        marginBottom: 10,
-    },
-    imageWrapper: {
-        position: 'relative',
-        marginRight: 10,
-    },
-    imagePreview: {
-        width: 100,
-        height: 100,
-        borderRadius: 10,
-    },
-    removeImageButton: {
-        position: 'absolute',
-        top: 5,
-        right: 5,
-    },
-    closeButton: {
-        backgroundColor: '#a8d3e6',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-        marginTop: 10,
-        alignItems: 'center',
-    },
-    closeButtonText: {
-        color: '#000',
-        fontSize: 16,
     },
     closeModalButton: {
         position: 'absolute',
@@ -358,24 +319,41 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 5,
     },
-    imageScrollView: {
-        maxHeight: 300,
-        width: '100%',
+    closeButton: {
+        backgroundColor: '#a8d3e6',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+        marginTop: 10,
+        alignItems: 'center',
+    },
+    closeButtonText: {
+        fontSize: 16,
+        color: '#fff',
     },
     imageGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
     },
     imageWrapper: {
-        width: '33.33%',
-        padding: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
+        marginBottom: 10,
     },
-    imagePreview: {
-        width: '100%',
-        height: 100,
-        borderRadius: 10,
+    imageButton: {
+        backgroundColor: '#00aaff',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 10,
+    },
+    imageButtonText: {
+        color: '#fff',
+    },
+    removeImageButton: {
+        position: 'absolute',
+        top: -10,
+        right: -10,
+        backgroundColor: 'rgba(255, 0, 0, 0.7)',
+        borderRadius: 15,
+        padding: 5,
     },
 });

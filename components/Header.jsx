@@ -25,7 +25,7 @@ export default function Header(props) {
 
   const handleButtonPress = () => {
     playSound();
-    navigation.navigate('Home')
+    navigation.navigate('HomeScreen')
   }
 
   return (
