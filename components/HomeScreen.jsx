@@ -67,7 +67,7 @@ export default function HomeScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <Header navigation={navigation} text="Welcome! Start" text2="Cleaning Litter" text3="Today!" />
+            <Header navigation={navigation} text="Welcome to GoTO!" text2="Start Cleaning" text3=" Litter Today!" />
 
             <View style={styles.container2}>
                 <View style={styles.litterContainer}>
