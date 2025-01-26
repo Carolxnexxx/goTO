@@ -22,7 +22,7 @@ function AnimalItem({ name, imageSource, index, blurRadius, onPress }) {
 
 export default function Rewards() {
 
-    const [totalPieces, setTotalPieces] = useState(0); 
+    const [totalPieces, setTotalPieces] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
     const [unblurredModalVisible, setUnblurredModalVisible] = useState(false);
 
@@ -37,27 +37,60 @@ export default function Rewards() {
             name: 'C-Teater', imageSource: require('../assets/images/cartoonAnimals/turtle.png'), imageSourceReal: require('../assets/images/realAnimals/turtle.jpg'), type: 'Sea Turtle', threshold: 10,
             fact: "It's estimated that approximately 52% of all sea turtles have eaten plastic! For most turtles, ingesting ONE piece of plastic is enough to kill them."
         },
-        { name: 'Doile', imageSource: require('../assets/images/cartoonAnimals/dolphin.png'), imageSourceReal: require('../assets/images/realAnimals/dolphin.jpg'), type: 'Dolphin', threshold: 20 },
-        { name: 'Ellaphant', imageSource: require('../assets/images/cartoonAnimals/elephant.png'), imageSourceReal: require('../assets/images/realAnimals/elephant.jpg'), type: 'Elephant', threshold: 30 },
-        { name: 'Shindo', imageSource: require('../assets/images/cartoonAnimals/whale.png'), imageSourceReal: require('../assets/images/realAnimals/whale.jpg'), type: 'Whale', threshold: 50 },
-        { name: 'Ziley', imageSource: require('../assets/images/cartoonAnimals/fish.png'), imageSourceReal: require('../assets/images/realAnimals/tuna.jpg'), type: 'Tuna', threshold: 70 },
-        { name: 'Finneril', imageSource: require('../assets/images/cartoonAnimals/orange_fish.png'), imageSourceReal: require('../assets/images/realAnimals/clownfish.jpeg'), type: 'Clownfish', threshold: 100 },
-        { name: 'C-Boynel', imageSource: require('../assets/images/cartoonAnimals/seagull.png'), imageSourceReal: require('../assets/images/realAnimals/seagull.jpg'), type: 'Seagull', threshold: 150 },
-        { name: 'Craleb', imageSource: require('../assets/images/cartoonAnimals/crab.png'), imageSourceReal: require('../assets/images/realAnimals/crab.jpg'), type: 'Crab', threshold: 200 },
-        { name: 'Fellie', imageSource: require('../assets/images/cartoonAnimals/fox.png'), imageSourceReal: require('../assets/images/realAnimals/fox.png'), type: 'Fox', threshold: 250 },
-        { name: 'Shinx', imageSource: require('../assets/images/cartoonAnimals/starfish.png'), imageSourceReal: require('../assets/images/realAnimals/starfish.jpg'), type: 'Starfish', threshold: 300 },
-        { name: 'Trig', imageSource: require('../assets/images/cartoonAnimals/tiger.png'), imageSourceReal: require('../assets/images/realAnimals/tiger.jpg'), type: 'Tiger', threshold: 350 },
-        { name: 'Shelly', imageSource: require('../assets/images/cartoonAnimals/seahorse.png'), imageSourceReal: require('../assets/images/realAnimals/seahorse.jpg'), type: 'Seahorse', threshold: 400 },
+        {
+            name: 'Doile', imageSource: require('../assets/images/cartoonAnimals/dolphin.png'), imageSourceReal: require('../assets/images/realAnimals/dolphin.jpg'), type: 'Dolphin', threshold: 20,
+            fact: "Dolphins have names for each other! They use unique whistles to call one another, much like how humans use names."
+        },
+        {
+            name: 'Ellaphant', imageSource: require('../assets/images/cartoonAnimals/elephant.png'), imageSourceReal: require('../assets/images/realAnimals/elephant.jpg'), type: 'Elephant', threshold: 30,
+            fact: "Elephants are known for their incredible memory. They can remember locations, other elephants, and even humans for many years."
+        },
+        {
+            name: 'Shindo', imageSource: require('../assets/images/cartoonAnimals/whale.png'), imageSourceReal: require('../assets/images/realAnimals/whale.jpg'), type: 'Whale', threshold: 50,
+            fact: "Whales communicate with each other through songs that can travel for miles underwater, and some whale songs can last up to 30 minutes!"
+        },
+        {
+            name: 'Ziley', imageSource: require('../assets/images/cartoonAnimals/fish.png'), imageSourceReal: require('../assets/images/realAnimals/tuna.jpg'), type: 'Tuna', threshold: 70,
+            fact: "Tuna are incredibly fast swimmers, reaching speeds of up to 75 km/h (46 mph) — faster than most cars on the highway!"
+        },
+        {
+            name: 'Finneril', imageSource: require('../assets/images/cartoonAnimals/orange_fish.png'), imageSourceReal: require('../assets/images/realAnimals/clownfish.jpeg'), type: 'Clownfish', threshold: 100,
+            fact: "Clownfish are immune to the stings of sea anemones, which they live in, due to a special layer of mucus on their skin."
+        },
+        {
+            name: 'C-Boynel', imageSource: require('../assets/images/cartoonAnimals/seagull.png'), imageSourceReal: require('../assets/images/realAnimals/seagull.jpg'), type: 'Seagull', threshold: 150,
+            fact: "Seagulls are known for their intelligence and problem-solving skills, often using tools to find food or even steal food from other birds!"
+        },
+        {
+            name: 'Craleb', imageSource: require('../assets/images/cartoonAnimals/crab.png'), imageSourceReal: require('../assets/images/realAnimals/crab.jpg'), type: 'Crab', threshold: 200,
+            fact: "Crabs have a unique way of walking called ‘sideways’ because of the structure of their legs, allowing them to move quickly across the sand."
+        },
+        {
+            name: 'Fellie', imageSource: require('../assets/images/cartoonAnimals/fox.png'), imageSourceReal: require('../assets/images/realAnimals/fox.png'), type: 'Fox', threshold: 250,
+            fact: "Foxes have excellent hearing and can hear a mouse squeak from 100 feet away, even if it's under the snow!"
+        },
+        {
+            name: 'Shinx', imageSource: require('../assets/images/cartoonAnimals/starfish.png'), imageSourceReal: require('../assets/images/realAnimals/starfish.jpg'), type: 'Starfish', threshold: 300,
+            fact: "Starfish have no brains or blood, but they can regenerate lost arms and even grow a completely new starfish from just one arm!"
+        },
+        {
+            name: 'Trig', imageSource: require('../assets/images/cartoonAnimals/tiger.png'), imageSourceReal: require('../assets/images/realAnimals/tiger.jpg'), type: 'Tiger', threshold: 350,
+            fact: "Tigers are the largest wild cats, with some males weighing over 600 pounds. They also have unique stripes, just like human fingerprints!"
+        },
+        {
+            name: 'Shelly', imageSource: require('../assets/images/cartoonAnimals/seahorse.png'), imageSourceReal: require('../assets/images/realAnimals/seahorse.jpg'), type: 'Seahorse', threshold: 400,
+            fact: "Seahorses are the only species where the males carry and give birth to the babies, not the females!"
+        },
     ];
 
     const calculateTotalPieces = async () => {
         try {
             const savedCleanUps = await AsyncStorage.getItem('cleanups');
-            console.log('Fetched CleanUps:', savedCleanUps); 
+            console.log('Fetched CleanUps:', savedCleanUps);
 
             if (savedCleanUps) {
                 const cleanups = JSON.parse(savedCleanUps);
-                console.log('Cleanups:', cleanups); 
+                console.log('Cleanups:', cleanups);
 
                 const total = cleanups.reduce((sum, cleanup) => {
                     return sum + (typeof cleanup.pieces === 'number' ? cleanup.pieces : 0);
@@ -65,16 +98,16 @@ export default function Rewards() {
 
                 setTotalPieces(total);
             } else {
-                setTotalPieces(0); 
+                setTotalPieces(0);
             }
         } catch (error) {
             console.error('Error fetching cleanups:', error);
-            setTotalPieces(0); 
+            setTotalPieces(0);
         }
     };
 
     useEffect(() => {
-        calculateTotalPieces(); 
+        calculateTotalPieces();
     }, []);
 
     const litter = totalPieces;
