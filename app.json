@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.gotoproject",
+      "bundleIdentifier": "com.hackclub.gotoproject",
       "infoPlist": {
         "NSCameraUsageDescription": "We need access to your camera to take pictures of litter."
       }
