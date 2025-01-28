@@ -28,7 +28,7 @@ self.define_singleton_method(use_autolinking_method_symbol) do |*args|
   end
 end
 
-platform :ios, '15.1'
+platform :ios, '17.1'
 
 install! 'cocoapods',
   :deterministic_uuids => false
